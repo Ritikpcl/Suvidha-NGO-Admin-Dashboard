@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.jsx'
 import { Auth0Provider } from '@auth0/auth0-react';
+if (typeof window.global === "undefined") window.global = window;
 
 const auth0Domain = import.meta.env.VITE_AUTH_DOMAIN;
 const auth0ClientId = import.meta.env.VITE_CLIENT_ID;
