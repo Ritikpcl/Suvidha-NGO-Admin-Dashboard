@@ -15,6 +15,10 @@ mongoose.connect(CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true }
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
+app.get('/',(req,res)=>{
+  res.send("working")
+})
+
 // Define API routes
 app.use('/api/letter', letterRoutes);
 
