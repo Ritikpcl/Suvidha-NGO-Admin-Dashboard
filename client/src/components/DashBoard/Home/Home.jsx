@@ -4,7 +4,6 @@ import LetterList from '../LetterList/LetterList';
 import Logout from '../../Logout/Logout';
 import Logo from '../../../assets/logo.png'
 
-
 const Home = () => {
   return (
     <div>
@@ -16,9 +15,10 @@ const Home = () => {
         <Logout/>
         </div>
       </div>
-      
+      <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
       <LetterForm />
       <LetterList />
+      </div>
     </div>
   );
 };

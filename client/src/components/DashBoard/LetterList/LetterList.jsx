@@ -23,7 +23,9 @@ const LetterList = () => {
         }));
 
         const filteredRows = rowsWithIds.filter((row) =>
-          row.name.toLowerCase().includes(searchQuery.toLowerCase())
+          row.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          row.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (typeof row.ref_no === 'number' && row.ref_no.toString().includes(searchQuery.toLowerCase()))
         );
 
         setLetters(filteredRows);
@@ -47,7 +49,7 @@ const LetterList = () => {
       })
       .catch((error) => {
         console.error('Error:', error);
-      }) .finally(() => {
+      }).finally(() => {
         setLoadingStates((prevStates) => ({
           ...prevStates,
           [rowId]: false,
@@ -105,12 +107,12 @@ const LetterList = () => {
   return (
     <div style={{ display: 'flex', flexDirection:'column',alignItems: 'center', height:'60vh'}}>
       <div style={{display:'flex', justifyContent:'space-between', width:"100%"}}>
-        <h2 style={{color:'#fab23e', marginLeft:'65px',marginBottom:'10px'}} >Letter List</h2>
-        <div style={{alignSelf:'flex-end', width: '28%', marginBottom:'10px'}}>
+        <h2 style={{color:'#fab23e',marginBottom:'10px'}} >Letter List</h2>
+        <div style={{alignSelf:'flex-end', marginBottom:'10px'}}>
           <img style={{width:'30px', marginTop:'20px'}} src={Search}/>
           <TextField
             id="standard-search"
-            label="Search by name..."
+            label="Search..."
             type="search"
             variant="standard"
             value={searchQuery}
@@ -118,7 +120,7 @@ const LetterList = () => {
           />
         </div>
       </div>
-      <div style={{ width: '90%'}}>
+      <div style={{ width: '100%'}}>
         <DataGrid
           rows={letters}
           columns={columns}

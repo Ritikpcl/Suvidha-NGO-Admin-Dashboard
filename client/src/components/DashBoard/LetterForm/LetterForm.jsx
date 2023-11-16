@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import letterImg from '../../../assets/email-and-file.png'
-import {ScaleLoader} from 'react-spinners'
+import letterImg from '../../../assets/email-and-file.png';
+import { ScaleLoader } from 'react-spinners';
 
 const LetterForm = () => {
   const [formData, setFormData] = useState({
@@ -13,15 +13,27 @@ const LetterForm = () => {
     from: '',
     to: '',
     email: '',
+    paid: false,
   });
 
   // Create state variables to track error state for each field
+  const [letterCount, setLetterCount] = useState(0);
   const [nameError, setNameError] = useState(false);
   const [designationError, setDesignationError] = useState(false);
   const [fromError, setFromError] = useState(false);
   const [toError, setToError] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_DOMAIN}/api/letter/count`)
+      .then((response) => {
+        setLetterCount(response.data.count);
+      })
+      .catch((error) => {
+        console.error('Error getting letter count:', error);
+      });
+  }, []);
 
   const resetDetails = () => {
     setFormData({
@@ -30,6 +42,7 @@ const LetterForm = () => {
       from: '',
       to: '',
       email: '',
+      paid: false,
     });
     setNameError(false);
     setDesignationError(false);
@@ -61,6 +74,14 @@ const LetterForm = () => {
     if (name === 'email') {
       setEmailError(false);
     }
+  };
+
+  // Handler function to toggle the checkbox state
+  const handleCheckboxChange = () => {
+    setFormData({
+      ...formData,
+      paid: !formData.paid,
+    });
   };
 
   const handleSubmit = (e) => {
@@ -107,15 +128,23 @@ const LetterForm = () => {
     if (isValid) {
       // Send the form data to the server
       setLoading(true);
-      axios.post(`${import.meta.env.VITE_DOMAIN}/api/letter/generate`, formData)
+
+      const newRefNum = 20000000 + letterCount + 1;
+
+      axios
+        .post(`${import.meta.env.VITE_DOMAIN}/api/letter/generate`, {
+          ...formData,
+          emailSent: 'false',
+          ref_no: newRefNum,
+        })
         .then((response) => {
           console.log('Letter generated:', response);
           resetDetails();
-          setLoading(false)
+          setLoading(false);
           window.location.reload();
         })
         .catch((error) => {
-          setLoading(false)
+          setLoading(false);
           console.error('Error generating letter:', error);
         });
     }
@@ -123,15 +152,31 @@ const LetterForm = () => {
 
   return (
     <div>
-      <hr style={{ height: '0.1px', backgroundColor: '#c2c2c2', border: 'none', marginTop:'-16px' , marginBottom:'25px'}} />
-      <div style={{display:"flex", justifyContent:'space-between'}}>
-      <div style={{display:"flex"}}>
-      <img style={{width:'70px'}} src={letterImg}/>
-      <h2 style={{ textAlign: 'left', color:'#fab23e'}} >Generate Letter</h2>
-      </div>
-      <Button style={{height:'40px', marginRight:'70px', marginTop:'30px'}} variant="outlined" onClick={handleSubmit}>
-      {loading ? <ScaleLoader color="#c2c2c2" height={15} /> : 'Generate Letter'}
-      </Button>
+      <hr
+        style={{
+          height: '0.1px',
+          backgroundColor: '#c2c2c2',
+          border: 'none',
+          marginTop: '-16px',
+          marginBottom: '25px',
+        }}
+      />
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex' }}>
+          <img style={{ width: '70px' }} src={letterImg} />
+          <h2 style={{ textAlign: 'left', color: '#fab23e' }}>Generate Letter</h2>
+        </div>
+        <Button
+          style={{ height: '40px', marginRight: '10px', marginTop: '30px' }}
+          variant="outlined"
+          onClick={handleSubmit}
+        >
+          {loading ? (
+            <ScaleLoader color="#c2c2c2" height={15} />
+          ) : (
+            'Generate Letter'
+          )}
+        </Button>
       </div>
       <Box
         component="form"
@@ -141,58 +186,80 @@ const LetterForm = () => {
         noValidate
         autoComplete="off"
       >
-        <TextField
-          required
-          id="outlined-required"
-          label="Name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          error={nameError} 
-        />
 
-        <TextField
-          required
-          id="outlined-required"
-          label="Designation"
-          name="designation"
-          value={formData.designation}
-          onChange={handleChange}
-          error={designationError}
-        />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{display:'flex', flexDirection:'column'}}>
+            <input
+              type="checkbox"
+              id="paidCheckbox"
+              name="paid"
+              checked={formData.paid}
+              onChange={handleCheckboxChange}
+              style={{ width: '30px', height: '30px', marginRight:'10px'}}
+            />
+            <p style={{margin:'0px', color:'#696762', marginRight:'10px'}}>Paid</p>
+          </div>
+          
 
-        <TextField
-          required
-          id="outlined-required"
-          type="date"
-          name="from"
-          value={formData.from}
-          onChange={handleChange}
-          error={fromError}
-        />
+          <TextField
+            required
+            id="outlined-required"
+            label="Name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            error={nameError}
+          />
 
-        <TextField
-          required
-          id="outlined-required"
-          type="date"
-          name="to"
-          value={formData.to}
-          onChange={handleChange}
-          error={toError}
-        />
+          <TextField
+            required
+            id="outlined-required"
+            label="Designation"
+            name="designation"
+            value={formData.designation}
+            onChange={handleChange}
+            error={designationError}
+          />
 
-        <TextField
-          required
-          id="outlined-required"
-          label="user@gmail.com"
-          name="email"
-          type="email"
-          value={formData.email}
-          onChange={handleChange}
-          error={emailError}
-        />
+          <TextField
+            required
+            id="outlined-required"
+            type="date"
+            name="from"
+            value={formData.from}
+            onChange={handleChange}
+            error={fromError}
+          />
+
+          <TextField
+            required
+            id="outlined-required"
+            type="date"
+            name="to"
+            value={formData.to}
+            onChange={handleChange}
+            error={toError}
+          />
+
+          <TextField
+            required
+            id="outlined-required"
+            label="user@gmail.com"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            error={emailError}
+          />
+        </div>
       </Box>
-      <hr style={{ height: '0.1px', backgroundColor: '#c2c2c2', border: 'none'}} />
+      <hr
+        style={{
+          height: '0.1px',
+          backgroundColor: '#c2c2c2',
+          border: 'none',
+        }}
+      />
     </div>
   );
 };
