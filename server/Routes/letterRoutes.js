@@ -9,6 +9,9 @@ router.post('/generate', letterController.generateLetter);
 // get All letters route
 router.get('/getAllLetters', letterController.getAllLetters);
 
+//count letters
+router.get('/count', letterController.countLetters)
+
 // get Letter By Email
 router.get('/getLetterByEmail/:email', letterController.getLetterByEmail)
 

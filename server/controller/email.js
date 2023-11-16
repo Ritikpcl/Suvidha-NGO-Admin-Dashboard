@@ -10,8 +10,8 @@ app.use(express.urlencoded({ extended: true }));
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-      user: 'ritikpcl007@gmail.com', 
-      pass: 'tspf orda bfdz jdxe', 
+      user: process.env.EMAIL, 
+      pass: process.env.PASS, 
     },
   });
 
@@ -45,9 +45,8 @@ const transporter = nodemailer.createTransport({
 
 exports.sendEmail = async (req, res) => {
     const { recipientEmail, pdfUrl, name } = req.body;
-  console.log(req.body)
     const mailOptions = {
-      from: 'ritikpcl007@gmail.com', // Sender's email address
+      from: process.env.EMAIL, // Sender's email address
       to: recipientEmail, // Recipient's email
       subject: 'Suvidha Offer Letter', // Email subject
       text: format, 
